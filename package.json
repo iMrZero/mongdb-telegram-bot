@@ -1,0 +1,20 @@
+{
+  "dependencies": {
+    "@google/genai": "^1.20.0",
+    "node-fetch": "^3.3.2",
+    "mongodb": "^6.8.0",
+    "node-telegram-bot-api": "^0.66.0",
+    "rss-parser": "^3.13.0"
+  },
+  "name": "tech-news-aggregator",
+  "version": "1.0.0",
+  "description": "This project idea is about building a **tech news aggregator + AI summarizer** that gathers new features from **CSS, HTML, JS, Frameworks** blogs or websites, summarizes them using AI, and sends updates to **Telegram or WhatsApp**.",
+  "main": "connectDB.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}

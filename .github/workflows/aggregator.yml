@@ -1,0 +1,37 @@
+name: Scheduled News Aggregation
+
+on:
+  # Schedule to run every day at 8:00 AM UTC
+  schedule:
+    - cron: "0 8 * * *"
+  # Allows manual triggering of the workflow from the GitHub Actions tab
+  workflow_dispatch:
+
+jobs:
+  run_aggregator:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies (including the new MongoDB driver)
+        # Assuming you've run 'npm install mongodb' and updated package.json
+        run: npm install
+
+      - name: Run News Aggregator and Save to MongoDB
+        run: node main.mjs
+        env:
+          # --- IMPORTANT DATABASE LINK ---
+          # 1. MongoDB Connection URI (The Link)
+          # You MUST set this secret in your GitHub Repository Settings -> Secrets and variables -> Actions
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          # 2. AI Key
+          # Used by summary.mjs to summarize the news
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
