@@ -1,10 +1,7 @@
 import { MongoClient, ServerApiVersion } from "mongodb";
 
 // MongoDB connection string is retrieved from environment variables for security
-const uri =
-  process.env.DATABASE_URL ||
-  "mongodb+srv://abdullatifrabiesoc_db_user:tzBCe5xdv44VKvIV@cluster0.adiosdp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
-
+const uri = process.env.DATABASE_URL;
 if (!uri) {
   throw new Error("DATABASE_URL environment variable is not set.");
 }

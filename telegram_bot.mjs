@@ -2,9 +2,7 @@ import TelegramBot from "node-telegram-bot-api/lib/telegram.js";
 import { getDB } from "./connectDB.mjs"; // Changed import from 'db' to 'getDB'
 
 // Use environment variables for production/deployment
-const token =
-  process.env.TELEGRAM_BOT_TOKEN ||
-  "8455314102:AAEVpEOK7wwcsqpkYhqq9nDqBOaMUTKchCE";
+const token = process.env.TELEGRAM_BOT_TOKEN;
 const bot = new TelegramBot(token, { polling: true });
 
 let articlesCollection;
