@@ -1,6 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY,
+  apiKey:
+    process.env.GEMINI_API_KEY || "AIzaSyDhUSgSdsn4_uSxu49sYaymUF5wkHq9Kk0",
 });
 // summarizeText();
 export async function summarize(text) {

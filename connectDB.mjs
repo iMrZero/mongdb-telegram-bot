@@ -1,4 +1,4 @@
-import { MongoClient } from "mongodb";
+import { MongoClient, ServerApiVersion } from "mongodb";
 
 // MongoDB connection string is retrieved from environment variables for security
 const uri =
@@ -9,8 +9,13 @@ if (!uri) {
   throw new Error("DATABASE_URL environment variable is not set.");
 }
 
-const client = new MongoClient(uri);
-
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  },
+});
 // Connect to the MongoDB cluster once
 async function connectToDatabase() {
   try {
