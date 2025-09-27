@@ -11,6 +11,7 @@
   "description": "This project idea is about building a **tech news aggregator + AI summarizer** that gathers new features from **CSS, HTML, JS, Frameworks** blogs or websites, summarizes them using AI, and sends updates to **Telegram or WhatsApp**.",
   "main": "connectDB.js",
   "scripts": {
+    "start" : "node telegram_bot.mjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
