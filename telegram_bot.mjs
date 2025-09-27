@@ -3,7 +3,13 @@ import { connectToDB } from "./connectDB.mjs"; // Changed import from 'db' to 'c
 
 // Use environment variables for production/deployment
 const token = process.env.TELEGRAM_BOT_TOKEN;
-const bot = new TelegramBot(token, { polling: true });
+const bot = new TelegramBot(token, { polling: true ,  request: {
+    agentOptions: {
+      // Forces the use of IPv4 (family: 4) for API requests
+      family: 4,
+      keepAlive: true,
+    },
+  },});
 
 let articlesCollection;
 
