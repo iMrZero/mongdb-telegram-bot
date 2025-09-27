@@ -22,7 +22,7 @@ jobs:
 
       - name: Install dependencies (including the new MongoDB driver)
         # Assuming you've run 'npm install mongodb' and updated package.json
-        run: npm install --omit=dev
+        run: npm install
 
       - name: Run News Aggregator and Save to MongoDB
         run: node main.mjs

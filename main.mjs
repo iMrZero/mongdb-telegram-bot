@@ -1,15 +1,41 @@
 import Parser from "rss-parser";
 import { getDB } from "./connectDB.mjs";
 import { summarize } from "./summary.mjs";
-const parser = new Parser();
-const feedUrls = [
-  "https://css-tricks.com/feed/",
-  "https://developer.chrome.com/feed.xml",
-  "https://www.smashingmagazine.com/feed/",
-  "https://javascriptweekly.com/rss/",
-];
-const feeds = await getFeeds(feedUrls);
-insertFeeds(feeds);
+// --- Main Execution Block ---
+async function main() {
+  let client;
+
+  try {
+    // 1. Establish connection and get client/collection
+    const { client: mongoClient, articlesCollection } = await connectToDB();
+    client = mongoClient; // Save client reference for closing
+
+    const parser = new Parser();
+    const feedUrls = [
+      // ... your feedUrls ...
+    ];
+
+    const feeds = await getFeeds(parser, feedUrls);
+
+    // 2. CRITICAL FIX: AWAIT the insert function
+    await insertFeeds(articlesCollection, feeds);
+
+    console.log("Feeds successfully processed and inserted.");
+  } catch (error) {
+    console.error("An error occurred during the cron job:", error);
+    // Exit with an error code if something fails
+    process.exit(1);
+  } finally {
+    // 3. CRITICAL FIX: Ensure the connection is closed after all work is complete
+    if (client) {
+      await client.close();
+      console.log("MongoDB connection closed.");
+    }
+  }
+}
+
+// Execute the main async function
+main();
 async function getFeeds(urls) {
   let feedsContent = [];
   for (const url of urls) {
@@ -23,58 +49,41 @@ async function getFeeds(urls) {
   }
   return feedsContent;
 }
-async function insertFeeds(feeds) {
-  // 1. Get the collection object from the connection function
-  const { client, articlesCollection } = await getDB();
-
-  // We will collect all articles to insert them in a single batch
-  const articlesToInsert = [];
+// 4. IMPORTANT: Update the function signature and use MongoDB insert methods
+async function insertFeeds(articlesCollection, feeds) {
+  // Array to hold all documents to be inserted
+  const documentsToInsert = [];
 
   for (const feed of feeds) {
-    const title = feed.title;
-    const desc = feed.description;
-    const link = feed.link;
-    const content = feed.items
-      .map((item) => item.content)
-      .join(" ")
-      .replaceAll(/<[^>]*>/g, ""); // Strips HTML tags
+    // ... (your existing feed processing logic) ...
 
-    // Skip if link already exists (basic deduplication)
-    const existingArticle = await articlesCollection.findOne({ link: link });
-    if (existingArticle) {
-      console.log(`Skipping existing article: ${title}`);
-      continue;
+    for (const item of feed.items) {
+      const summaryText = await summarize(item.content);
+
+      // Create a document object for MongoDB
+      documentsToInsert.push({
+        title: item.title,
+        desc: item.contentSnippet, // Assuming you want a snippet for desc
+        content: item.content,
+        summarize: summaryText,
+        link: item.link,
+        createdAt: new Date(), // Add a timestamp for sorting
+      });
     }
+  }
 
-    console.log(`Summarizing ${title}...`);
-    const summarizedContent = await summarize(content);
-
-    articlesToInsert.push({
-      title: title,
-      desc: desc,
-      content: content,
-      summarize: summarizedContent,
-      link: link,
-      // Add a timestamp for ordering
-      createdAt: new Date(),
+  if (documentsToInsert.length > 0) {
+    // Insert all articles in one go
+    // NOTE: Consider using updateMany or bulkWrite to prevent duplicates in a real cron job
+    const result = await articlesCollection.insertMany(documentsToInsert, {
+      ordered: false,
     });
+    console.log(`Inserted ${result.insertedCount} new articles.`);
   }
-
-  if (articlesToInsert.length > 0) {
-    // 2. Insert all new articles in one go
-    const result = await articlesCollection.insertMany(articlesToInsert);
-    console.log(`Successfully inserted ${result.insertedCount} new articles.`);
-  } else {
-    console.log("No new articles to insert.");
-  }
-
-  // Close the connection when the script finishes (Important for GitHub Actions)
-  await client.close();
 }
-
 // ... (rest of the file content)
 // Ensure the main logic is wrapped in an async function to use await
-(async () => {
-  const feeds = await getFeeds(feedUrls);
-  await insertFeeds(feeds); // Wait for insertion to complete
-})();
+// (async () => {
+//   const feeds = await getFeeds(feedUrls);
+//   await insertFeeds(feeds); // Wait for insertion to complete
+// })();

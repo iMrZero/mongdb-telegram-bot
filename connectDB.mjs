@@ -1,34 +1,39 @@
-import { MongoClient, ServerApiVersion } from "mongodb";
+import { MongoClient } from "mongodb";
 
-// MongoDB connection string is retrieved from environment variables for security
-const uri = process.env.DATABASE_URL;
-if (!uri) {
-  throw new Error("DATABASE_URL environment variable is not set.");
-}
+// Use environment variables for sensitive connection info
+const MONGODB_URI = process.env.DATABASE_URL;
+const DB_NAME = "Cluster0"; // Or your actual database name
+const COLLECTION_NAME = "articles";
 
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  },
-});
-// Connect to the MongoDB cluster once
-async function connectToDatabase() {
+let client;
+let articlesCollection;
+
+export async function connectToDB() {
+  if (!MONGODB_URI) {
+    throw new Error("MONGODB_URI is not set in environment variables.");
+  }
+
+  // Reuse existing connection if possible (less critical for short-lived cron, but good practice)
+  if (client && articlesCollection) {
+    // If you need to check if it's still alive:
+    // try { await client.db().admin().ping(); } catch { /* reconnect below */ }
+    return { client, articlesCollection };
+  }
+
+  client = new MongoClient(MONGODB_URI);
+
   try {
     await client.connect();
-    console.log("Connected successfully to MongoDB Atlas");
-    // Access a specific database (e.g., 'news-bot') and collection (e.g., 'articles')
-    const db = client.db("news-bot"); // Replace 'news-bot' with your desired database name
-    const articlesCollection = db.collection("articles");
+    const db = client.db(DB_NAME);
+    articlesCollection = db.collection(COLLECTION_NAME);
+
     return { client, articlesCollection };
-  } catch (e) {
-    console.error("MongoDB Connection Error:", e);
-    // Exit process if connection fails in a critical script like main.mjs
-    // For a 24/7 bot, you might want to retry
-    throw e;
+  } catch (error) {
+    console.error("Failed to connect to MongoDB:", error);
+    // Ensure client is closed on failure
+    if (client) {
+      await client.close();
+    }
+    throw error;
   }
 }
-
-// Export a function that connects and returns the collection needed by other files
-export const getDB = connectToDatabase;
