@@ -1,5 +1,5 @@
 import Parser from "rss-parser";
-import { getDB } from "./connectDB.mjs";
+import { connectToDB } from "./connectDB.mjs";
 import { summarize } from "./summary.mjs";
 // --- Main Execution Block ---
 async function main() {
