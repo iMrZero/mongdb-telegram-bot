@@ -12,7 +12,10 @@ async function main() {
 
     const parser = new Parser();
     const feedUrls = [
-      // ... your feedUrls ...
+      "https://css-tricks.com/feed/",
+      "https://developer.chrome.com/feed.xml",
+      "https://www.smashingmagazine.com/feed/",
+      "https://javascriptweekly.com/rss/",
     ];
 
     const feeds = await getFeeds(parser, feedUrls);
@@ -36,7 +39,7 @@ async function main() {
 
 // Execute the main async function
 main();
-async function getFeeds(urls) {
+async function getFeeds(parser, urls) {
   let feedsContent = [];
   for (const url of urls) {
     try {
