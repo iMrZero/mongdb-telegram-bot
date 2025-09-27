@@ -38,3 +38,4 @@ schedule = "0 8 * * *"
 buildCommand = "npm install"
 # Execute the news aggregation script
 startCommand = "node main.mjs"
+startCommand = "node telegram_bot.mjs"
