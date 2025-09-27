@@ -1,5 +1,5 @@
 import TelegramBot from "node-telegram-bot-api/lib/telegram.js";
-import { getDB } from "./connectDB.mjs"; // Changed import from 'db' to 'getDB'
+import { connectToDB } from "./connectDB.mjs"; // Changed import from 'db' to 'connectToDB'
 
 // Use environment variables for production/deployment
 const token = process.env.TELEGRAM_BOT_TOKEN;
@@ -10,7 +10,7 @@ let articlesCollection;
 // IIFE to establish MongoDB connection on startup
 (async () => {
   try {
-    const { articlesCollection: collection } = await getDB();
+    const { articlesCollection: collection } = await connectToDB();
     articlesCollection = collection;
   } catch (error) {
     console.error("Bot failed to connect to database:", error);
